@@ -94,7 +94,7 @@ fun TicTacToeScreen(viewModel: TicTacToeViewModel,onExit: () -> Unit) {
                                     painter = rememberVectorPainter(
                                         image = Icons.Rounded.Close
                                     ),
-                                    contentDescription = "Favorite",
+                                    contentDescription = "Close",
                                     modifier = Modifier.size(50.dp)
                                 )
                             }
@@ -102,7 +102,7 @@ fun TicTacToeScreen(viewModel: TicTacToeViewModel,onExit: () -> Unit) {
                             Text(
                                 text = when {
                                     isGameOver -> if (viewModel.winner != null) "Winner: ${viewModel.winner}" else "It's a Draw!"
-                                    else -> "Current Player: ${viewModel.currentPlayer}"
+                                    else -> "Current Player: ${userSelection}"
                                 },
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,

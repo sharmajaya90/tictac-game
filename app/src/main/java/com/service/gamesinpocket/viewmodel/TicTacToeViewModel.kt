@@ -12,9 +12,9 @@ class TicTacToeViewModel : ViewModel() {
     var ticTacUiState by mutableStateOf(TicTacUiState())
     var board by mutableStateOf(List(9) { Player.NONE })
 
-    var currentPlayer by mutableStateOf(Player.X)
+    var currentPlayer by mutableStateOf(Player.NONE)
 
-    var gameMode by mutableStateOf(GameMode.TWO_PLAYER)
+    var gameMode by mutableStateOf(GameMode.SINGLE_PLAYER)
 
     var winner by mutableStateOf<Player?>(null)
 
@@ -23,26 +23,24 @@ class TicTacToeViewModel : ViewModel() {
     fun onEvent(event: HomeEvent) {
         when (event) {
             HomeEvent.PlayerBack -> {
-                ticTacUiState = ticTacUiState.copy(modeSelection = null)
+                ticTacUiState = TicTacUiState()
             }
             is HomeEvent.UserMode -> {
                 setTicTacGameMode(event.gameMode)
-                ticTacUiState = ticTacUiState.copy(modeSelection = gameMode)
+                ticTacUiState = ticTacUiState.copy(modeSelection = event.gameMode)
             }
             is HomeEvent.PlayerOption -> {
-                setTicTacUserSelection(event.selectedPlayer)
-                ticTacUiState = ticTacUiState.copy(userSelection = currentPlayer)
+                setTicTacPlayer(event.selectedPlayer)
+                ticTacUiState = ticTacUiState.copy(userSelection = event.selectedPlayer)
             }
             is HomeEvent.GameOn -> {
-                setTicTacGameMode(event.gameMode)
-                ticTacUiState = ticTacUiState.copy(gameOn = gameMode)
+               // ticTacUiState = ticTacUiState.copy(gameOn = gameMode)
             }
         }
     }
 
     fun resetGame() {
         board = List(9) { Player.NONE }
-        currentPlayer = Player.X
         winner = null
         isGameOver = false
     }
@@ -52,8 +50,8 @@ class TicTacToeViewModel : ViewModel() {
         gameMode = mode
     }
 
-    private fun setTicTacUserSelection(selectedPlayer:Player) {
-        currentPlayer = selectedPlayer
+    fun setTicTacPlayer(player: Player) {
+        currentPlayer = player
     }
 
     fun makeMove(index: Int) {
@@ -62,20 +60,19 @@ class TicTacToeViewModel : ViewModel() {
         board = board.toMutableList().also { it[index] = currentPlayer }
         checkWinner()
 
-        if (!isGameOver) {
+        if (!isGameOver && gameMode == GameMode.TWO_PLAYER) {
             currentPlayer = if (currentPlayer == Player.X) Player.O else Player.X
-
-            if (gameMode == GameMode.SINGLE_PLAYER && currentPlayer == Player.O) {
-                makeComputerMove()
-            }
+        }else if (!isGameOver && gameMode == GameMode.SINGLE_PLAYER) {
+            makeComputerMove(if (currentPlayer == Player.X) Player.O else Player.X)
         }
     }
 
-    private fun makeComputerMove() {
+    private fun makeComputerMove(oponentPlayers:Player) {
         val emptyIndices = board.indices.filter { board[it] == Player.NONE }
         if (emptyIndices.isNotEmpty()) {
             val move = emptyIndices.random()
-            makeMove(move)
+            board = board.toMutableList().also { it[move] = oponentPlayers}
+            checkWinner()
         }
     }
 
